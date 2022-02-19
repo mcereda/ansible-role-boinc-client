@@ -1,1 +1,6 @@
 ---
+- name: Restart BOINC's service
+  become: true
+  service:
+    name: boinc-client
+    state: restarted

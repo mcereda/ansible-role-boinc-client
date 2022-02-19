@@ -1,1 +1,18 @@
 ---
+boinc_config_dir_by_os_family:
+  debian: /etc/boinc-client
+boinc_data_dir_by_system:
+  darwin: '/Library/Application Support/BOINC Data'
+  linux: /var/lib/boinc
+
+boinc_packages_by_pkg_mgr:
+  apt:
+    - "{{ boinc_enable_opencl_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
+    - "{{ boinc_enable_opencl_integration | ternary('mesa-opencl-icd', '') }}"
+    - "{{ boinc_enable_virtualbox_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
+    - "{{ boinc_set_group_permissions_for_users | ternary('acl', '') }}"
+  pacman:
+    - "{{ boinc_headless | ternary('boinc-nox', 'boinc') }}"
+    - "{{ boinc_set_group_permissions_for_users | ternary('acl', '') }}"
+  zypper:
+    - boinc-client

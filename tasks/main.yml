@@ -1,1 +1,84 @@
 ---
+- name: Install BOINC's packages
+  when: ansible_pkg_mgr|lower == 'apt'
+  tags:
+    - package_management
+  become: true
+  apt:
+    name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr]|select|unique }}"
+    install_recommends: "{{ boinc_apt_install_recommends }}"
+
+- name: Give BOINC required groups membership
+  when: boinc_groups|select
+  tags:
+    - group_membership
+  notify: Restart BOINC's service
+  become: true
+  user:
+    name: boinc
+    groups: "{{ boinc_groups|select }}"
+    append: true
+
+- name: Set a password for GUI authentication
+  tags:
+    - authentication
+    - rpc
+  notify: Restart BOINC's service
+  become: true
+  lineinfile:
+    path: "{{ boinc_config_dir }}/gui_rpc_auth.cfg"
+    regexp: .*
+    line: "{{ boinc_gui_rpc_auth_password }}"
+    create: true
+    mode: '0640'
+
+- name: Give the user membership to BOINC's group
+  tags:
+    - group_membership
+  notify: Restart BOINC's service
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: boinc
+    append: true
+
+- name: Enable remote management for the BOINC client
+  when: boinc_allow_remote_gui_rpc
+  tags:
+    - remote_management
+  block:
+    - name: Whitelist managers
+      notify: Restart BOINC's service
+      become: true
+      lineinfile:
+        path: "{{ boinc_config_dir }}/remote_hosts.cfg"
+        line: "{{ item }}"
+        create: true
+        mode: '0644'
+      loop: "{{ boinc_remote_hosts|select|unique }}"
+    - name: Create a basic configuration file
+      become: true
+      lineinfile:
+        path: "{{ boinc_config_dir }}/cc_config.xml"
+        line: "{{ item }}"
+        create: true
+        mode: '0644'
+      loop:
+        - '<cc_config>'
+        - '</cc_config>'
+    - name: Create the options section
+      become: true
+      lineinfile:
+        path: "{{ boinc_config_dir }}/cc_config.xml"
+        line: "  {{ item }}"
+        insertbefore: '</cc_config>'
+      loop:
+        - '<options>'
+        - '</options>'
+    - name: Add the remote management option
+      notify: Restart BOINC's service
+      become: true
+      lineinfile:
+        path: "{{ boinc_config_dir }}/cc_config.xml"
+        line: "    <allow_remote_gui_rpc>1</allow_remote_gui_rpc>"
+        insertafter: '<options>'
