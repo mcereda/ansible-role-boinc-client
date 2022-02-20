@@ -1,0 +1,51 @@
+---
+# the client needs to be running to attach
+- name: Flush all handlers now
+  # in case it needs to be restarted
+  meta: flush_handlers
+- name: Force start of the BOINC's client service
+  become: true
+  service:
+    name: boinc-client
+    state: started
+    enabled: "{{ boinc_start_at_boot }}"
+- name: Wait until the service is fully started
+  become: true
+  wait_for:
+    path: "{{ boinc_data_dir }}/time_stats_log"
+    state: present
+
+# boinccmd looks for "gui_rpc_auth.cfg" in the same directory it is launched from
+- name: Check if the client is already connected to an Account Manager
+  become: true
+  command:
+    chdir: "{{ boinc_config_dir }}"
+    cmd: "boinccmd --acct_mgr info"
+  register: acct_mgr_info_result
+  changed_when: false
+- name: Attach the client to the account manager
+  when:
+    - boinc_attach_to_acct_mgr is true
+    - acct_mgr_info_result.stdout | regex_search("URL\:\s+$")
+  become: true
+  command:
+    chdir: "{{ boinc_config_dir }}"
+    cmd: "boinccmd --acct_mgr attach '{{ boinc_acct_mgr_url }}' '{{ boinc_acct_mgr_username }}' '{{ boinc_acct_mgr_password }}'"
+  register: acct_mgr_attach_result
+  changed_when: acct_mgr_sync_result.stdout | regex_search("operation in progress")
+- name: Sync the client to the account manager
+  become: true
+  command:
+    chdir: "{{ boinc_config_dir }}"
+    cmd: "boinccmd --acct_mgr sync"
+  register: acct_mgr_sync_result
+  changed_when: acct_mgr_sync_result.stdout | regex_search("operation in progress")
+- name: Detach the client from the account manager
+  when:
+    - boinc_attach_to_acct_mgr is false
+    - not (acct_mgr_info_result.stdout | regex_search("URL\:\s+$"))
+  become: true
+  command:
+    chdir: "{{ boinc_config_dir }}"
+    cmd: "boinccmd --acct_mgr detach"
+  changed_when: false

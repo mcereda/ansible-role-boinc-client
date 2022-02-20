@@ -24,3 +24,8 @@
     name: "{{ ansible_user_id }}"
     groups: boinc
     append: true
+
+- name: Attach the client to the Account Manager
+  import_tasks: "{{ role_path }}/tasks/acct_mgr.yml"
+  tags:
+    - acct_mgr

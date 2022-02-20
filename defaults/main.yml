@@ -10,9 +10,15 @@ boinc_groups:
 boinc_set_files_group_writable: false
 
 boinc_headless: false
+boinc_start_at_boot: false
 
 boinc_allow_remote_gui_rpc: false
 boinc_gui_rpc_auth_password: "{{ lookup('password', '/dev/null') }}"
 boinc_remote_hosts: []
+
+boinc_attach_to_acct_mgr: false
+boinc_acct_mgr_url: http://bam.boincstats.com
+boinc_acct_mgr_username: null
+boinc_acct_mgr_password: null
 
 boinc_apt_install_recommends: "{{ boinc_headless }}"
