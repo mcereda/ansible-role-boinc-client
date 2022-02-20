@@ -5,11 +5,12 @@ boinc_data_dir: "{{ boinc_data_dir_by_system[ansible_system|lower] }}"
 boinc_enable_opencl_integration: false
 boinc_enable_virtualbox_integration: false
 
+add_ansible_user_to_boinc_users: false
 boinc_groups:
   - "{{ boinc_enable_opencl_integration | ternary('render', '') }}"
   - "{{ boinc_enable_opencl_integration | ternary('video', '') }}"
   - "{{ boinc_enable_virtualbox_integration | ternary('vboxusers', '') }}"
-boinc_set_group_permissions_for_users: false
+boinc_set_files_group_writable: false
 
 boinc_headless: false
 
@@ -17,4 +18,4 @@ boinc_allow_remote_gui_rpc: false
 boinc_gui_rpc_auth_password: "{{ lookup('password', '/dev/null') }}"
 boinc_remote_hosts: []
 
-boinc_apt_install_recommends: false
+boinc_apt_install_recommends: "{{ boinc_headless }}"

@@ -1,12 +1,28 @@
 ---
 - name: Install BOINC's packages
-  when: ansible_pkg_mgr|lower == 'apt'
   tags:
     - package_management
-  become: true
-  apt:
-    name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr]|select|unique }}"
-    install_recommends: "{{ boinc_apt_install_recommends }}"
+  block:
+    - name: Install BOINC using 'apt'
+      # requires the package cache to be updated
+      when: ansible_pkg_mgr|lower == 'apt'
+      become: true
+      apt:
+        update_cache: true
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
+        install_recommends: "{{ boinc_apt_install_recommends }}"
+    - name: Install BOINC using 'pacman'
+      # requires the package cache to be updated
+      when: ansible_pkg_mgr|lower == 'pacman'
+      become: true
+      community.general.pacman:
+        update_cache: true
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
+    - name: Install BOINC using the package manager
+      when: ansible_pkg_mgr|lower not in ['apt','pacman']
+      become: true
+      package:
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
 
 - name: Give BOINC required groups membership
   when: boinc_groups|select
@@ -30,9 +46,10 @@
     regexp: .*
     line: "{{ boinc_gui_rpc_auth_password }}"
     create: true
-    mode: '0640'
+    mode: "{{ boinc_set_files_group_writable | ternary('0660', '0640') }}"
 
 - name: Give the user membership to BOINC's group
+  when: add_ansible_user_to_boinc_users
   tags:
     - group_membership
   notify: Restart BOINC's service
@@ -48,13 +65,14 @@
     - remote_management
   block:
     - name: Whitelist managers
+      when: boinc_remote_hosts is not empty
       notify: Restart BOINC's service
       become: true
       lineinfile:
         path: "{{ boinc_config_dir }}/remote_hosts.cfg"
         line: "{{ item }}"
         create: true
-        mode: '0644'
+        mode: "{{ boinc_set_files_group_writable | ternary('0664', '0644') }}"
       loop: "{{ boinc_remote_hosts|select|unique }}"
     - name: Create a basic configuration file
       become: true
@@ -62,7 +80,7 @@
         path: "{{ boinc_config_dir }}/cc_config.xml"
         line: "{{ item }}"
         create: true
-        mode: '0644'
+        mode: "{{ boinc_set_files_group_writable | ternary('0664', '0644') }}"
       loop:
         - '<cc_config>'
         - '</cc_config>'

@@ -7,12 +7,22 @@ boinc_data_dir_by_system:
 
 boinc_packages_by_pkg_mgr:
   apt:
+    - "{{ boinc_headless | ternary('boinc-client', 'boinc') }}"
     - "{{ boinc_enable_opencl_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
     - "{{ boinc_enable_opencl_integration | ternary('mesa-opencl-icd', '') }}"
-    - "{{ boinc_enable_virtualbox_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
-    - "{{ boinc_set_group_permissions_for_users | ternary('acl', '') }}"
+    - "{{ boinc_enable_virtualbox_integration | ternary('boinc-client-virtualbox', 'boinc-client') }}"
+    - "{{ boinc_set_files_group_writable | ternary('acl', '') }}"
+  dnf:
+    - boinc-client
+    - "{{ boinc_headless | ternary('', 'boinc-manager') }}"
+    - "{{ boinc_set_files_group_writable | ternary('acl', '') }}"
   pacman:
     - "{{ boinc_headless | ternary('boinc-nox', 'boinc') }}"
-    - "{{ boinc_set_group_permissions_for_users | ternary('acl', '') }}"
+    - "{{ boinc_set_files_group_writable | ternary('acl', '') }}"
+  yum:
+    - boinc-client
+    - "{{ boinc_headless | ternary('', 'boinc-manager') }}"
+    - "{{ boinc_set_files_group_writable | ternary('acl', '') }}"
   zypper:
     - boinc-client
+    - "{{ boinc_headless | ternary('', 'boinc-manager') }}"
