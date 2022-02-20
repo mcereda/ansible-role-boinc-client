@@ -10,7 +10,7 @@
     groups: "{{ boinc_groups|select }}"
     append: true
 
-- name: Set group privileges
+- name: Set group privileges on directories
   block:
     - name: Adjust the group's default ACLs on BOINC's directories
       become: true

@@ -13,7 +13,7 @@
     group: boinc
     mode: "{{ boinc_set_files_group_writable | ternary('ug=rw', 'u=rw,g=r') }}"
 
-- name: Configure remote management
-  import_tasks: "{{ role_path }}/tasks/configuration/remote-management.yml"
+- name: Configure remote management of the BOINC client
+  import_tasks: "{{ role_path }}/tasks/configuration/remote_gui_rpc.yml"
   tags:
-    - remote_management
+    - remote_gui_rpc

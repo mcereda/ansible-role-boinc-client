@@ -10,7 +10,9 @@
     - configuration
 
 - name: Configure BOINC's group privileges
-  import_tasks: "{{ role_path }}/tasks/group-privileges.yml"
+  import_tasks: "{{ role_path }}/tasks/group_privileges.yml"
+  tags:
+    - group_privileges
 
 - name: Give the user membership to BOINC's group
   when: boinc_add_user_to_the_boinc_group
