@@ -46,7 +46,9 @@
     regexp: .*
     line: "{{ boinc_gui_rpc_auth_password }}"
     create: true
-    mode: "{{ boinc_set_files_group_writable | ternary('0660', '0640') }}"
+    owner: boinc
+    group: boinc
+    mode: "{{ boinc_set_files_group_writable | ternary('ug=rw', 'u=rw,g=r') }}"
 
 - name: Enable remote management for the BOINC client
   when: boinc_allow_remote_gui_rpc
@@ -54,14 +56,16 @@
     - remote_management
   block:
     - name: Whitelist managers
-      when: boinc_remote_hosts is not empty
+      when: boinc_remote_hosts|length > 0
       notify: Restart BOINC's service
       become: true
       lineinfile:
         path: "{{ boinc_config_dir }}/remote_hosts.cfg"
-        line: "{{ item }}"
+        line: "{{ item|string }}"
         create: true
-        mode: "{{ boinc_set_files_group_writable | ternary('0664', '0644') }}"
+        owner: boinc
+        group: boinc
+        mode: "{{ boinc_set_files_group_writable | ternary('ug=rw,o=r', 'u=rw,go=r') }}"
       loop: "{{ boinc_remote_hosts|select|unique }}"
     - name: Create a basic configuration file
       become: true
@@ -69,7 +73,9 @@
         path: "{{ boinc_config_dir }}/cc_config.xml"
         line: "{{ item }}"
         create: true
-        mode: "{{ boinc_set_files_group_writable | ternary('0664', '0644') }}"
+        owner: boinc
+        group: boinc
+        mode: "{{ boinc_set_files_group_writable | ternary('ug=rw,o=r', 'u=rw,go=r') }}"
       loop:
         - '<cc_config>'
         - '</cc_config>'
@@ -91,7 +97,7 @@
         insertafter: '<options>'
 
 - name: Give the user membership to BOINC's group
-  when: add_ansible_user_to_boinc_users
+  when: boinc_add_user_to_the_boinc_group
   tags:
     - group_membership
   notify: Restart BOINC's service
@@ -102,7 +108,6 @@
     append: true
 
 - name: Set group privileges
-  when: boinc_set_files_group_writable
   block:
     - name: Adjust the group's default ACLs on all BOINC's directories
       become: true
@@ -110,9 +115,9 @@
         path: "{{ item }}"
         entity: boinc
         etype: group
-        permissions: rw
+        permissions: "{{ boinc_set_files_group_writable | ternary('rw', omit) }}"
         default: true
-        state: present
+        state: "{{ boinc_set_files_group_writable | ternary('present', 'absent') }}"
       loop:
         - "{{ boinc_config_dir }}"
         - "{{ boinc_data_dir }}"
@@ -121,7 +126,7 @@
       file:
         path: "{{ item }}"
         state: directory
-        mode: 'g+rwX'
+        mode: "{{ boinc_set_files_group_writable | ternary('g+wX', 'g-w') }}"
         group: boinc
         recurse: true
       loop:

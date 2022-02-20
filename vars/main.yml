@@ -1,6 +1,8 @@
 ---
+boinc_config_dir: "{{ boinc_config_dir_by_os_family[ansible_os_family|lower] | default(boinc_data_dir) }}"
 boinc_config_dir_by_os_family:
   debian: /etc/boinc-client
+boinc_data_dir: "{{ boinc_data_dir_by_system[ansible_system|lower] }}"
 boinc_data_dir_by_system:
   darwin: '/Library/Application Support/BOINC Data'
   linux: /var/lib/boinc
