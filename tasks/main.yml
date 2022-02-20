@@ -1,100 +1,16 @@
 ---
-- name: Install BOINC's packages
+- name: Install BOINC
+  import_tasks: "{{ role_path }}/tasks/installation.yml"
   tags:
-    - package_management
-  block:
-    - name: Install BOINC using 'apt'
-      # requires the package cache to be updated
-      when: ansible_pkg_mgr|lower == 'apt'
-      become: true
-      apt:
-        update_cache: true
-        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
-        install_recommends: "{{ boinc_apt_install_recommends }}"
-    - name: Install BOINC using 'pacman'
-      # requires the package cache to be updated
-      when: ansible_pkg_mgr|lower == 'pacman'
-      become: true
-      community.general.pacman:
-        update_cache: true
-        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
-    - name: Install BOINC using the package manager
-      when: ansible_pkg_mgr|lower not in ['apt','pacman']
-      become: true
-      package:
-        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
+    - installation
 
-- name: Give BOINC required groups membership
-  when: boinc_groups|select
+- name: Configure BOINC
+  import_tasks: "{{ role_path }}/tasks/configuration/main.yml"
   tags:
-    - group_membership
-  notify: Restart BOINC's service
-  become: true
-  user:
-    name: boinc
-    groups: "{{ boinc_groups|select }}"
-    append: true
+    - configuration
 
-- name: Set a password for GUI authentication
-  tags:
-    - authentication
-    - rpc
-  notify: Restart BOINC's service
-  become: true
-  lineinfile:
-    path: "{{ boinc_config_dir }}/gui_rpc_auth.cfg"
-    regexp: .*
-    line: "{{ boinc_gui_rpc_auth_password }}"
-    create: true
-    owner: boinc
-    group: boinc
-    mode: "{{ boinc_set_files_group_writable | ternary('ug=rw', 'u=rw,g=r') }}"
-
-- name: Enable remote management for the BOINC client
-  when: boinc_allow_remote_gui_rpc
-  tags:
-    - remote_management
-  block:
-    - name: Whitelist managers
-      when: boinc_remote_hosts|length > 0
-      notify: Restart BOINC's service
-      become: true
-      lineinfile:
-        path: "{{ boinc_config_dir }}/remote_hosts.cfg"
-        line: "{{ item|string }}"
-        create: true
-        owner: boinc
-        group: boinc
-        mode: "{{ boinc_set_files_group_writable | ternary('ug=rw,o=r', 'u=rw,go=r') }}"
-      loop: "{{ boinc_remote_hosts|select|unique }}"
-    - name: Create a basic configuration file
-      become: true
-      lineinfile:
-        path: "{{ boinc_config_dir }}/cc_config.xml"
-        line: "{{ item }}"
-        create: true
-        owner: boinc
-        group: boinc
-        mode: "{{ boinc_set_files_group_writable | ternary('ug=rw,o=r', 'u=rw,go=r') }}"
-      loop:
-        - '<cc_config>'
-        - '</cc_config>'
-    - name: Create the options section
-      become: true
-      lineinfile:
-        path: "{{ boinc_config_dir }}/cc_config.xml"
-        line: "  {{ item }}"
-        insertbefore: '</cc_config>'
-      loop:
-        - '<options>'
-        - '</options>'
-    - name: Add the remote management option
-      notify: Restart BOINC's service
-      become: true
-      lineinfile:
-        path: "{{ boinc_config_dir }}/cc_config.xml"
-        line: "    <allow_remote_gui_rpc>1</allow_remote_gui_rpc>"
-        insertafter: '<options>'
+- name: Configure BOINC's group privileges
+  import_tasks: "{{ role_path }}/tasks/group-privileges.yml"
 
 - name: Give the user membership to BOINC's group
   when: boinc_add_user_to_the_boinc_group
@@ -106,29 +22,3 @@
     name: "{{ ansible_user_id }}"
     groups: boinc
     append: true
-
-- name: Set group privileges
-  block:
-    - name: Adjust the group's default ACLs on all BOINC's directories
-      become: true
-      ansible.posix.acl:
-        path: "{{ item }}"
-        entity: boinc
-        etype: group
-        permissions: "{{ boinc_set_files_group_writable | ternary('rw', omit) }}"
-        default: true
-        state: "{{ boinc_set_files_group_writable | ternary('present', 'absent') }}"
-      loop:
-        - "{{ boinc_config_dir }}"
-        - "{{ boinc_data_dir }}"
-    - name: Adjust the group's permissions on all BOINC's directories
-      become: true
-      file:
-        path: "{{ item }}"
-        state: directory
-        mode: "{{ boinc_set_files_group_writable | ternary('g+wX', 'g-w') }}"
-        group: boinc
-        recurse: true
-      loop:
-        - "{{ boinc_config_dir }}"
-        - "{{ boinc_data_dir }}"

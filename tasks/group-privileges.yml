@@ -1,0 +1,37 @@
+---
+- name: Give BOINC required groups membership
+  when: boinc_groups|select
+  tags:
+    - group_membership
+  notify: Restart BOINC's service
+  become: true
+  user:
+    name: boinc
+    groups: "{{ boinc_groups|select }}"
+    append: true
+
+- name: Set group privileges
+  block:
+    - name: Adjust the group's default ACLs on BOINC's directories
+      become: true
+      ansible.posix.acl:
+        path: "{{ item }}"
+        entity: boinc
+        etype: group
+        permissions: "{{ boinc_set_files_group_writable | ternary('rw', omit) }}"
+        default: true
+        state: "{{ boinc_set_files_group_writable | ternary('present', 'absent') }}"
+      loop:
+        - "{{ boinc_config_dir }}"
+        - "{{ boinc_data_dir }}"
+    - name: Adjust the group's permissions on BOINC's directories
+      become: true
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "{{ boinc_set_files_group_writable | ternary('g+wX', 'g-w') }}"
+        group: boinc
+        recurse: true
+      loop:
+        - "{{ boinc_config_dir }}"
+        - "{{ boinc_data_dir }}"

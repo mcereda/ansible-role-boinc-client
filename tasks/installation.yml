@@ -1,0 +1,25 @@
+---
+- name: Install BOINC's packages
+  tags:
+    - package_management
+  block:
+    - name: Install BOINC using 'apt'
+      # requires the package cache to be updated
+      when: ansible_pkg_mgr|lower == 'apt'
+      become: true
+      apt:
+        update_cache: true
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
+        install_recommends: "{{ boinc_apt_install_recommends }}"
+    - name: Install BOINC using 'pacman'
+      # requires the package cache to be updated
+      when: ansible_pkg_mgr|lower == 'pacman'
+      become: true
+      community.general.pacman:
+        update_cache: true
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"
+    - name: Install BOINC using the package manager
+      when: ansible_pkg_mgr|lower not in ['apt','pacman']
+      become: true
+      package:
+        name: "{{ boinc_packages_by_pkg_mgr[ansible_pkg_mgr|lower]|select|unique }}"

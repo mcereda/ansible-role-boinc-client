@@ -1,0 +1,19 @@
+---
+- name: Set the password for GUI authentication
+  tags:
+    - gui_rpc_auth
+  notify: Restart BOINC's service
+  become: true
+  lineinfile:
+    path: "{{ boinc_config_dir }}/gui_rpc_auth.cfg"
+    regexp: .*
+    line: "{{ boinc_gui_rpc_auth_password }}"
+    create: true
+    owner: boinc
+    group: boinc
+    mode: "{{ boinc_set_files_group_writable | ternary('ug=rw', 'u=rw,g=r') }}"
+
+- name: Configure remote management
+  import_tasks: "{{ role_path }}/tasks/configuration/remote-management.yml"
+  tags:
+    - remote_management
