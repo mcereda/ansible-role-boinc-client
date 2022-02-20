@@ -48,17 +48,6 @@
     create: true
     mode: "{{ boinc_set_files_group_writable | ternary('0660', '0640') }}"
 
-- name: Give the user membership to BOINC's group
-  when: add_ansible_user_to_boinc_users
-  tags:
-    - group_membership
-  notify: Restart BOINC's service
-  become: true
-  user:
-    name: "{{ ansible_user_id }}"
-    groups: boinc
-    append: true
-
 - name: Enable remote management for the BOINC client
   when: boinc_allow_remote_gui_rpc
   tags:
@@ -100,3 +89,41 @@
         path: "{{ boinc_config_dir }}/cc_config.xml"
         line: "    <allow_remote_gui_rpc>1</allow_remote_gui_rpc>"
         insertafter: '<options>'
+
+- name: Give the user membership to BOINC's group
+  when: add_ansible_user_to_boinc_users
+  tags:
+    - group_membership
+  notify: Restart BOINC's service
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: boinc
+    append: true
+
+- name: Set group privileges
+  when: boinc_set_files_group_writable
+  block:
+    - name: Adjust the group's default ACLs on all BOINC's directories
+      become: true
+      ansible.posix.acl:
+        path: "{{ item }}"
+        entity: boinc
+        etype: group
+        permissions: rw
+        default: true
+        state: present
+      loop:
+        - "{{ boinc_config_dir }}"
+        - "{{ boinc_data_dir }}"
+    - name: Adjust the group's permissions on all BOINC's directories
+      become: true
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 'g+rwX'
+        group: boinc
+        recurse: true
+      loop:
+        - "{{ boinc_config_dir }}"
+        - "{{ boinc_data_dir }}"
