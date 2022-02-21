@@ -12,7 +12,7 @@ boinc_packages_by_pkg_mgr:
     - "{{ boinc_headless | ternary('boinc-client', 'boinc') }}"
     - "{{ boinc_enable_opencl_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
     - "{{ boinc_enable_opencl_integration | ternary('mesa-opencl-icd', '') }}"
-    - "{{ boinc_enable_virtualbox_integration | ternary('boinc-client-virtualbox', 'boinc-client') }}"
+    - "{{ boinc_enable_virtualbox_integration | ternary('boinc-virtualbox', '') }}"
     - "{{ boinc_set_files_group_writable | ternary('acl', '') }}"
   dnf:
     - boinc-client
