@@ -21,7 +21,7 @@
         permissions: "{{ boinc_set_files_group_writable | ternary('rw', omit) }}"
         default: true
         state: "{{ boinc_set_files_group_writable | ternary('present', 'absent') }}"
-      loop: "{{ [ boinc_config_dir, boinc_data_dir ] | select | unique }}"
+      loop: "{{ [boinc_config_dir, boinc_data_dir] | select | unique }}"
     - name: Adjust the group's permissions on BOINC's directories
       become: true
       ansible.builtin.file:
@@ -30,4 +30,4 @@
         mode: "{{ boinc_set_files_group_writable | ternary('g+wX', omit) }}"
         group: boinc
         recurse: true
-      loop: "{{ [ boinc_config_dir, boinc_data_dir ] | select | unique }}"
+      loop: "{{ [boinc_config_dir, boinc_data_dir] | select | unique }}"
