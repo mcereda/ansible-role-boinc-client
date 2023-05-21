@@ -27,7 +27,7 @@
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
-        mode: "{{ boinc_set_files_group_writable | ternary('g+wX', 'g-w') }}"
+        mode: "{{ boinc_set_files_group_writable | ternary('g+wX', omit) }}"
         group: boinc
         recurse: true
       loop: "{{ [ boinc_config_dir, boinc_data_dir ] | select | unique }}"
