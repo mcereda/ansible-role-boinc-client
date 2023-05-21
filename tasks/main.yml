@@ -1,4 +1,10 @@
 ---
+- name: Pre-flight checks
+  tags:
+    - checks
+    - pre-flight
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/pre-flight/main.yml"
+
 - name: Install BOINC
   tags:
     - installation

@@ -1,0 +1,7 @@
+---
+- name: Check required values are given when attaching to any account manager
+  when: boinc_attach_to_acct_mgr is true
+  tags:
+    - account_manager
+    - acct_mgr
+  ansible.builtin.import_tasks: "acct_mgr.yml"

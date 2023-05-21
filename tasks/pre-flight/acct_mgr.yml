@@ -1,0 +1,23 @@
+---
+
+- name: Assert an username is given when attaching to any account manager
+  ansible.builtin.assert:
+    that:
+      - boinc_acct_mgr_username is string
+      - boinc_acct_mgr_username != ""
+    quiet: true
+    fail_msg: "'boinc_attach_to_acct_mgr' being true requires 'boinc_acct_mgr_username' to be a non-empty string. Got '{{ boinc_acct_mgr_username }}' instead."
+
+- name: Assert a password is given when attaching to any account manager
+  ansible.builtin.assert:
+    that:
+      - boinc_acct_mgr_password is string
+      - boinc_acct_mgr_password != ""
+    quiet: true
+    fail_msg: "'boinc_attach_to_acct_mgr' being true requires 'boinc_acct_mgr_password' to be a non-empty string. Got '{{ boinc_acct_mgr_password }}' instead."
+
+- name: Assert a url is given when attaching to any account manager
+  ansible.builtin.assert:
+    that: boinc_acct_mgr_url is url(['http', 'https'])
+    quiet: true
+    fail_msg: "'boinc_attach_to_acct_mgr' being true requires 'boinc_acct_mgr_url' to be a valid HTTP/HTTPS url. Got '{{ boinc_acct_mgr_url }}' instead."
