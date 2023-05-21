@@ -1,7 +1,7 @@
 ---
 - name: Create a basic configuration file
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ boinc_config_dir }}/cc_config.xml"
     line: "{{ item }}"
     create: true
@@ -13,7 +13,7 @@
     - '</cc_config>'
 - name: Create the options section
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ boinc_config_dir }}/cc_config.xml"
     line: "  {{ item }}"
     insertbefore: '</cc_config>'
@@ -23,20 +23,20 @@
 - name: Add the remote management option
   notify: Restart BOINC's service
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ boinc_config_dir }}/cc_config.xml"
     line: "    <allow_remote_gui_rpc>1</allow_remote_gui_rpc>"
     insertafter: '<options>'
     state: "{{ boinc_allow_remote_gui_rpc | ternary(omit, 'absent') }}"
 - name: Whitelist managers
-  when: boinc_remote_hosts|length > 0
+  when: boinc_remote_hosts | length > 0
   notify: Restart BOINC's service
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ boinc_config_dir }}/remote_hosts.cfg"
-    line: "{{ item|string }}"
+    line: "{{ item | string }}"
     create: true
     owner: boinc
     group: boinc
     mode: "{{ boinc_set_files_group_writable | ternary('ug=rw,o=r', 'u=rw,go=r') }}"
-  loop: "{{ boinc_remote_hosts|select|unique }}"
+  loop: "{{ boinc_remote_hosts | select | unique }}"

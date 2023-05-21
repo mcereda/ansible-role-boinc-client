@@ -1,6 +1,6 @@
 ---
 - name: Restart BOINC's service
   become: true
-  service:
+  ansible.builtin.service:
     name: boinc-client
     state: restarted

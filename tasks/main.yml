@@ -1,18 +1,18 @@
 ---
 - name: Install BOINC
-  import_tasks: "{{ role_path }}/tasks/installation.yml"
   tags:
     - installation
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/installation.yml"
 
 - name: Configure BOINC
-  import_tasks: "{{ role_path }}/tasks/configuration/main.yml"
   tags:
     - configuration
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/configuration/main.yml"
 
 - name: Configure BOINC's group privileges
-  import_tasks: "{{ role_path }}/tasks/group_privileges.yml"
   tags:
     - group_privileges
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/group_privileges.yml"
 
 - name: Give the user membership to BOINC's group
   when: boinc_add_user_to_the_boinc_group
@@ -20,12 +20,13 @@
     - group_membership
   notify: Restart BOINC's service
   become: true
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     groups: boinc
     append: true
 
 - name: Attach the client to the Account Manager
-  import_tasks: "{{ role_path }}/tasks/acct_mgr.yml"
   tags:
+    - account_manager
     - acct_mgr
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/acct_mgr.yml"
