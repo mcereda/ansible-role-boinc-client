@@ -38,7 +38,7 @@ Variable name                         | Type       | Default value              
 `boinc_packages_by_pkg_mgr`           | dictionary | see the [main variables]                                  | the (dynamic) list of packages to install for each package manager
 `boinc_remote_hosts`                  | list       | []                                                        | the list of hosts for which remote gui rpc is allowed; only fqdns or ip addresses work here
 `boinc_set_files_group_writable`      | boolean    | false                                                     | wether to set all files writable to boinc users
-`boinc_start_at_boot`                 | boolean    | false                                                     | wether to start the client at boot
+`boinc_start_at_boot`                 | boolean    | true                                                      | wether to start the client at boot
 
 ## Dependencies
 

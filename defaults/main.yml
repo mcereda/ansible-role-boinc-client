@@ -10,7 +10,7 @@ boinc_groups:
 boinc_set_files_group_writable: false
 
 boinc_headless: false
-boinc_start_at_boot: false
+boinc_start_at_boot: true
 
 boinc_allow_remote_gui_rpc: false
 boinc_gui_rpc_auth_password: "{{ lookup('password', '/dev/null') }}"
