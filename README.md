@@ -35,6 +35,7 @@ Variable name                         | Type       | Default value              
 `boinc_groups`                        | list       | zero or more of [`render`,`video`,`virtualbox`]           | additional groups the `boinc` user is member of
 `boinc_gui_rpc_auth_password`         | string     | ansible-generated password                                | the password to use to connect to the client
 `boinc_headless`                      | boolean    | false                                                     | wether to install the manager and other gui utilities
+`boinc_install_tui`                   | boolean    | same as `boinc_headless`                                  | wether to install the tui
 `boinc_packages_by_pkg_mgr`           | dictionary | see the [main variables]                                  | the (dynamic) list of packages to install for each package manager
 `boinc_remote_hosts`                  | list       | []                                                        | the list of hosts for which remote gui rpc is allowed; only fqdns or ip addresses work here
 `boinc_set_files_group_writable`      | boolean    | false                                                     | wether to set all files writable to boinc users

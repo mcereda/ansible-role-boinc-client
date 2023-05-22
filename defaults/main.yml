@@ -22,3 +22,4 @@ boinc_acct_mgr_username: null
 boinc_acct_mgr_password: null
 
 boinc_apt_install_recommends: "{{ not boinc_headless }}"
+boinc_install_tui: "{{ boinc_headless }}"

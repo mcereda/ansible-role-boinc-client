@@ -10,6 +10,7 @@ boinc_data_dir_by_system:
 boinc_packages_by_pkg_mgr:
   apt:
     - "{{ boinc_headless | ternary('boinc-client', 'boinc') }}"
+    - "{{ boinc_install_tui | ternary('boinctui', '') }}"
     - "{{ boinc_enable_opencl_integration | ternary('boinc-client-opencl', 'boinc-client') }}"
     - "{{ boinc_enable_opencl_integration | ternary('mesa-opencl-icd', '') }}"
     - "{{ boinc_enable_virtualbox_integration | ternary('boinc-virtualbox', '') }}"
