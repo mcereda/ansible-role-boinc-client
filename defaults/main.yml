@@ -1,7 +1,4 @@
 ---
-boinc_enable_opencl_integration: false
-boinc_enable_virtualbox_integration: false
-
 boinc_add_user_to_the_boinc_group: false
 boinc_groups:
   - "{{ boinc_enable_opencl_integration | ternary('render', '') }}"
@@ -9,7 +6,6 @@ boinc_groups:
   - "{{ boinc_enable_virtualbox_integration | ternary('vboxusers', '') }}"
 boinc_set_files_group_writable: false
 
-boinc_headless: false
 boinc_start_at_boot: true
 
 boinc_allow_remote_gui_rpc: false
@@ -21,5 +17,8 @@ boinc_acct_mgr_url: http://bam.boincstats.com
 boinc_acct_mgr_username: null
 boinc_acct_mgr_password: null
 
+boinc_headless: false
 boinc_apt_install_recommends: "{{ not boinc_headless }}"
 boinc_install_tui: "{{ boinc_headless }}"
+boinc_enable_opencl_integration: false
+boinc_enable_virtualbox_integration: false
