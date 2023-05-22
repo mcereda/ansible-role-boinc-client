@@ -33,7 +33,7 @@
     chdir: "{{ boinc_config_dir }}"
     cmd: "boinccmd --acct_mgr attach '{{ boinc_acct_mgr_url }}' '{{ boinc_acct_mgr_username }}' '{{ boinc_acct_mgr_password }}'"
   register: acct_mgr_attach_result
-  changed_when: acct_mgr_sync_result.stdout | regex_search("operation in progress")
+  changed_when: acct_mgr_attach_result.stdout | regex_search("operation in progress")
 - name: Sync the client to the account manager
   become: true
   ansible.builtin.command:

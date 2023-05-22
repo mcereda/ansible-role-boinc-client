@@ -16,6 +16,7 @@
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/configuration/main.yml"
 
 - name: Configure BOINC's group privileges
+  when: boinc_set_files_group_writable
   tags:
     - group_privileges
   ansible.builtin.import_tasks: "{{ role_path }}/tasks/group_privileges.yml"
