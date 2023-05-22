@@ -24,7 +24,7 @@ Variable name                         | Type       | Default value              
 `boinc_acct_mgr_username`             | string     | null                                                      | the account manager's username
 `boinc_add_user_to_the_boinc_group`   | boolean    | false                                                     | wether to add the current ansible user to the `boinc` group
 `boinc_allow_remote_gui_rpc`          | boolean    | false                                                     | wether to allow remote gui rpc connections
-`boinc_apt_install_recommends`        | boolean    | same as `boinc_headless`                                  | on apt-based systems, wether to install recommended packages
+`boinc_apt_install_recommends`        | boolean    | opposite of `boinc_headless`                              | on apt-based systems, wether to install recommended packages
 `boinc_attach_to_acct_mgr`            | boolean    | false                                                     | wether to start the client to an account manager
 `boinc_config_dir_by_os_family`       | dictionary | see the [main variables]                                  | the default configuration directory, categorized by `ansible_os_family`
 `boinc_config_dir`                    | string     | the (dynamic) os family's default configuration directory | usually the same as `boinc_data_dir` unless the system has it differently (e.g. debian)

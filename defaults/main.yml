@@ -21,4 +21,4 @@ boinc_acct_mgr_url: http://bam.boincstats.com
 boinc_acct_mgr_username: null
 boinc_acct_mgr_password: null
 
-boinc_apt_install_recommends: "{{ boinc_headless }}"
+boinc_apt_install_recommends: "{{ not boinc_headless }}"
