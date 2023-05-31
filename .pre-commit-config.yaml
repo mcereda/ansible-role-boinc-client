@@ -7,6 +7,6 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
   - repo: https://github.com/ansible-community/ansible-lint
-    rev: v6.16.1
+    rev: v6.17.0
     hooks:
       - id: ansible-lint
